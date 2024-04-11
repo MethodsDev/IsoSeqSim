@@ -1,0 +1,1 @@
+./bin/isoseqsim -g example/input/genome.fasta -a example/input/gene_annotation.gtf --c5 utilities/5_end_completeness.PacBio-P6-C4.tab --c3 utilities/3_end_completeness.PacBio-P6-C4.tab -o example/simulated_reads_normal.fa -t example/simulated_transcipt_normal.gpd --tempdir example/temp_normal
