@@ -18,7 +18,7 @@ def generate_expr_matrix(input_gpd_fl,nb_r,nb_p,output_expr_mtx):
 	nb_list = np.random.negative_binomial(nb_r,nb_p,len(gpd_list)).tolist()
 	i = 0
 	for gpd in gpd_list:
-		print >>output_expr_mtx, gpd + "\t" + str(nb_list[i])
+		print(gpd + "\t" + str(nb_list[i]), file=output_expr_mtx)
 		i += 1
 	input_gpd_fl.close()
 	output_expr_mtx.close()
