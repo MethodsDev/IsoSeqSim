@@ -8,22 +8,26 @@ def main():
     udir = os.path.dirname(os.path.realpath(__file__)) + "/../utilities"
     sys.stdout.write("### Start analysis at " + time.strftime("%a,%d %b %Y %H:%M:%S") + "\n")
     sys.stdout.flush()
-    if args.mode == "normal": # normal mode
-
-        sys.stdout.write("## Mode: normal\n")
+    
+    if args.gpd:
+        gpd_file = args.gpd
+    else:
         sys.stdout.write("# Step1: convert gtf to gpd\n")
         sys.stdout.flush()
-        cmd1 = udir + "/py_isoseqsim_gtf2gpd.py -i " + args.annotation + " -o " + tempdir + "/normal_annotation.gpd"
+        gpd_file = tempdir + "/normal_annotation.gpd"
+        cmd1 = udir + "/py_isoseqsim_gtf2gpd.py -i " + args.annotation + " -o " + gpd_file
         check_call(cmd1.split())
-                
+
+    if args.mode == "normal": # normal mode
+        sys.stdout.write("## Mode: normal\n")
         sys.stdout.write("# Step2: generate transcriptome fasta file\n")
         sys.stdout.flush()
-        cmd2 = udir + "/py_isoseqsim_gpd2fa_normal.py -a " + args.genome + " -g " + tempdir + "/normal_annotation.gpd" + " -o " + tempdir + "/normal_transcriptome.fa"
+        cmd2 = udir + "/py_isoseqsim_gpd2fa_normal.py -a " + args.genome + " -g " + gpd_file + " -o " + tempdir + "/normal_transcriptome.fa"
         check_call(cmd2.split())
 
         sys.stdout.write("# Step3: generate expression matrix based on Negative Binomial distribution\n")
         sys.stdout.flush()
-        cmd3 = udir + "/py_isoseqsim_generate_expr_matrix.py -i " + tempdir + "/normal_annotation.gpd" + " -n " + args.nbn + " -p " + args.nbp + " -o " + args.transcript
+        cmd3 = udir + "/py_isoseqsim_generate_expr_matrix.py -i " + gpd_file + " -n " + args.nbn + " -p " + args.nbp + " -o " + args.transcript
         check_call(cmd3.split())
                 
         sys.stdout.write("# Step4: simulate Iso-Seq reads\n")
@@ -33,13 +37,9 @@ def main():
 
     elif args.mode == "fusion": # fusion mode
         sys.stdout.write("## Mode: fusion\n")
-        sys.stdout.write("# Step1: convert gtf to gpd\n")
-        sys.stdout.flush()
-        cmd1 = udir + "/py_isoseqsim_gtf2gpd.py -i " + args.annotation + " -o " + tempdir + "/normal_annotation.gpd"
-        call(cmd1.split())
         sys.stdout.write("# Step2: generate fusion event\n")
         sys.stdout.flush()
-        cmd2 = udir + "/py_isoseqsim_generate_fusion_event.py -i " + tempdir + "/normal_annotation.gpd" + " -o " + tempdir + "/fusion_annotation.gpd" + " -n " + args.fc
+        cmd2 = udir + "/py_isoseqsim_generate_fusion_event.py -i " + gpd_file + " -o " + tempdir + "/fusion_annotation.gpd" + " -n " + args.fc
         call(cmd2.split())
         sys.stdout.write("# Step3: generate fusion transcript-specific transcriptome fasta file\n")
         sys.stdout.flush()
@@ -56,10 +56,6 @@ def main():
 
     elif args.mode == "ase": # ASE mode
         sys.stdout.write("## Mode: ase\n")
-        sys.stdout.write("# Step1: convert gtf to gpd\n")
-        sys.stdout.flush()
-        cmd1 = udir + "/py_isoseqsim_gtf2gpd.py -i " + args.annotation + " -o " + tempdir + "/normal_annotation.gpd"
-        call(cmd1.split())
         sys.stdout.write("# Step2: generate haplotype-phased genome\n")
         sys.stdout.flush()
         if args.vcf and args.id:
@@ -70,11 +66,11 @@ def main():
         call(cmd2.split())
         sys.stdout.write("# Step3: generate ASE-specific transcriptome fasta file\n")
         sys.stdout.flush()
-        cmd3 = udir + "/py_isoseqsim_gpd2fa_ase.py -a " + tempdir + "/ase_haplotype.fa" + " -g " + tempdir + "/normal_annotation.gpd" + " -o " + tempdir + "/ase_transcriptome.fa"
+        cmd3 = udir + "/py_isoseqsim_gpd2fa_ase.py -a " + tempdir + "/ase_haplotype.fa" + " -g " + gpd_file + " -o " + tempdir + "/ase_transcriptome.fa"
         call(cmd3.split())
         sys.stdout.write("# Step4: generate expression matrix based on Negative Binomial distribution for total read count and Truncated Normal distribution for allele-specific read count\n")
         sys.stdout.flush()
-        cmd4 = udir + "/py_isoseqsim_generate_expr_matrix_ase.py -i " + tempdir + "/normal_annotation.gpd" + " -n " + args.nbn + " -p " + args.nbp + " -l " + args.tnl + " -u " + args.tnu + " -m " + args.tnm + " -s " + args.tns + " -o " + args.transcript
+        cmd4 = udir + "/py_isoseqsim_generate_expr_matrix_ase.py -i " + gpd_file + " -n " + args.nbn + " -p " + args.nbp + " -l " + args.tnl + " -u " + args.tnu + " -m " + args.tnm + " -s " + args.tns + " -o " + args.transcript
         call(cmd4.split())
         sys.stdout.write("# Step5: simulate Iso-Seq reads\n")
         sys.stdout.flush()
@@ -83,13 +79,9 @@ def main():
 
     elif args.mode == "apa":
         sys.stdout.write("## Mode: apa\n") # APA mode
-        sys.stdout.write("# Step1: convert gtf to gpd\n")
-        sys.stdout.flush()
-        cmd1 = udir + "/py_isoseqsim_gtf2gpd.py -i " + args.annotation + " -o " + tempdir + "/normal_annotation.gpd"
-        call(cmd1.split())
         sys.stdout.write("# Step2: generate APA event\n")
         sys.stdout.flush()
-        cmd2 = udir + "/py_isoseqsim_generate_apa_event.py -i " + tempdir + "/normal_annotation.gpd" + " -o " + tempdir + "/apa_annotation.gpd" + " -g " +args.genome + " -d " + args.dis_pa
+        cmd2 = udir + "/py_isoseqsim_generate_apa_event.py -i " + gpd_file + " -o " + tempdir + "/apa_annotation.gpd" + " -g " +args.genome + " -d " + args.dis_pa
         call(cmd2.split())
         sys.stdout.write("# Step3: generate APA-specific transcriptome fasta file\n")
         sys.stdout.flush()
@@ -105,13 +97,9 @@ def main():
         call(cmd5.split())
     elif args.mode == "ats":
         sys.stdout.write("## Mode: ats\n") # ATS mode
-        sys.stdout.write("# Step1: convert gtf to gpd\n")
-        sys.stdout.flush()
-        cmd1 = udir + "/py_isoseqsim_gtf2gpd.py -i " + args.annotation + " -o " + tempdir + "/normal_annotation.gpd"
-        call(cmd1.split())
         sys.stdout.write("# Step2: generate ATS event\n")
         sys.stdout.flush()
-        cmd2 = udir + "/py_isoseqsim_generate_ats_event.py -i " + tempdir + "/normal_annotation.gpd" + " -o " + tempdir + "/ats_annotation.gpd" + " -g " +args.genome + " -d " + args.dis_tss
+        cmd2 = udir + "/py_isoseqsim_generate_ats_event.py -i " + gpd_file + " -o " + tempdir + "/ats_annotation.gpd" + " -g " +args.genome + " -d " + args.dis_tss
         call(cmd2.split())
         sys.stdout.write("# Step3: generate ATS-specific transcriptome fasta file\n")
         sys.stdout.flush()
@@ -136,13 +124,13 @@ def setup_tempdir(tempd):
         os.makedirs(tempd.rstrip('/'))
     return tempd.rstrip('/')
 
-
 def do_inputs():
     parser=argparse.ArgumentParser(description="IsoSeqSim: Iso-Seq reads simulator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v','--version',action='version',version='IsoSeqSim (version 0.1)')
     parser.add_argument('-m','--mode',type=str,choices=["normal","fusion","apa","ase","ats"],default="normal",help="Mode choice to perform")
     parser.add_argument('-g','--genome',type=str,required=True,help="Input: genome sequence file, FASTA format")
-    parser.add_argument('-a','--annotation',type=str,required=True,help="Input: gene annotation file, GTF format")
+    parser.add_argument('-a','--annotation',type=str,required=False,help="Input: gene annotation file, GTF format")
+    parser.add_argument('-p','--gpd',type=str,required=False,help="Input: gene annotation file, GPD format")
     parser.add_argument('-o','--output',type=str,required=True,help="Output: simulated reads file, FASTA format. For more details, see README")
     parser.add_argument('-t','--transcript',type=str,required=True,help="Output: annotation file to show the simulated transcripts with read counts, modified GenePred table format. For more details, see README")
     parser.add_argument('--tempdir',type=str,required=True,help="Temporary directory for saving intermediate files. You can delete it after finish running. (e.g., ./temp)")
