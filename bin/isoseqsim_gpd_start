@@ -22,7 +22,6 @@ def main():
 def do_inputs():
     parser = argparse.ArgumentParser(description="IsoSeqSim: Iso-Seq reads simulator", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-v', '--version', action='version', version='IsoSeqSim (version 0.1)')
-    parser.add_argument('-g', '--genome', type=str, required=True, help="Input: genome sequence file, FASTA format")
     parser.add_argument('-p', '--gpd', type=str, required=True, help="Input: gene annotation file, GPD format")
     parser.add_argument('-t', '--transcriptome_fa', type=str, required=True, help="Input: transcriptome fasta file, generated from GPD file")
     parser.add_argument('-o', '--output', type=str, required=True, help="Output: simulated reads file, FASTA format. For more details, see README")
